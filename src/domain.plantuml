@@ -1,0 +1,61 @@
+@startuml
+class Feature {
+    + name: String {final}
+    + expression: RoleExpression
+    + Feature(String)
+    + Feature(String, RoleExpression)
+    + isEnabled(UserRoles): boolean
+}
+
+class Role {
+    + name: String {final}
+    + Role(String)
+}
+
+class UserRoles {
+    - roles: Role[] {final}
+    - UserRoles(Role[])
+    + contains(Role): boolean
+    + {static} of(Role[]): UserRoles
+    + {static} of(String[]): UserRoles
+}
+interface RoleExpression {
+    + toPredicate(): Predicate<UserRoles>
+    + stringify(): String
+}
+
+class RoleTerm {
+    - role: Role {final}
+    + RoleTerm(Role)
+}
+
+
+abstract class RoleOperator {
+    # operands: RoleExpression[]  {final}
+    # RoleOperator(RoleExpression[])
+}
+
+class AndRoleOperator {
+    + AndRoleOperator(RoleExpression, RoleExpression)
+}
+
+class OrRoleOperator {
+    + OrRoleOperator(RoleExpression, RoleExpression)
+}
+
+Feature "1" *-- "0..1" RoleExpression
+
+UserRoles "1" *-down- "*" Role
+
+RoleTerm ..right..|>RoleExpression
+
+RoleTerm "1" *-up- "1" Role
+
+
+RoleOperator "1" *-up- "1..*" RoleExpression
+RoleOperator .up.|> RoleExpression
+
+AndRoleOperator -up-|> RoleOperator
+OrRoleOperator -up-|> RoleOperator
+
+@enduml
